@@ -1,0 +1,22 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getDataFromJsonFiles } from "../lib/getDataFromJsonFiles";
+
+export async function GET(request: NextRequest) {
+  const directoryPath = "src/app/api/project/database";
+  const database = await getDataFromJsonFiles(directoryPath);
+  console.log("database", database);
+
+  const searchParams = request.nextUrl.searchParams;
+  const name = searchParams.get("name");
+
+  if (name) {
+    const validNames = database.map((d) => d.id);
+    if (!validNames.includes(name)) {
+      return NextResponse.json({ error: "Invalid name parameter" });
+    }
+    const filteredData = database.filter((item) => item.id === name);
+    return NextResponse.json(filteredData);
+  }
+
+  return NextResponse.json(database);
+}
